@@ -233,7 +233,7 @@ mutation createScheduledJob {
 
 ## Processing:
 
-### Create Textraction Job with Translation 
+### Create Text Extraction Job with Translation 
 
 ```
 mutation newTDO {
@@ -355,6 +355,69 @@ mutation createTranscriptionJobWithStandby {
             }
         }
     }
+}
+```
+
+### Run Maxim Aggregator (Spanglish Transcription)
+```
+mutation runMaximAggregator {
+  createJob(input: {
+    targetId: "790426860",
+    tasks: [{
+      engineId: "9e611ad7-2d3b-48f6-a51b-0a1ba40feab4",
+      payload: {
+        url: "https://ben-veritone-testing.s3.amazonaws.com/Spanglish+Interview.mp4"
+      }
+    },
+    {
+      # Speaker Separation
+      engineId: "3ed5d1c4-a55a-4c0f-8684-ad91d2094bc3"
+      payload: {
+        hideUnknown: "0",
+        maxSpeakerLabels: 8,
+        stoppingThreshold: 0.4,
+        labelActiveChannel: "0"
+      }
+    },
+    {
+      # Spanish Transcription
+      engineId: "71ab1ba9-e0b8-4215-b4f9-0fc1a1d2b44d"
+    },
+    {
+      # English Transcription
+      engineId: "c0e55cde-340b-44d7-bb42-2e0d65e98141"
+    },    
+    {
+      # Maxim Aggregator: English Transcription as Parent Engine
+      engineId: "531c5be2-5f53-4e94-84d6-07c0fcaa9fba"
+      payload: {
+        comment: "maxim aggregator",
+        algorithm: "crover",
+        engineIds: [
+          "c0e55cde-340b-44d7-bb42-2e0d65e98141",
+          "71ab1ba9-e0b8-4215-b4f9-0fc1a1d2b44d"
+        ],
+        timeInterval: 50,
+        parentEngineId: "c0e55cde-340b-44d7-bb42-2e0d65e98141"
+      }
+    },
+    {
+      # Maxim Aggregator: Spanish Transcription as Parent Engine
+      engineId: "531c5be2-5f53-4e94-84d6-07c0fcaa9fba"
+      payload: {
+        comment: "maxim aggregator",
+        algorithm: "crover",
+        engineIds: [
+          "c0e55cde-340b-44d7-bb42-2e0d65e98141",
+          "71ab1ba9-e0b8-4215-b4f9-0fc1a1d2b44d"
+        ],
+        timeInterval: 50,
+        parentEngineId: "71ab1ba9-e0b8-4215-b4f9-0fc1a1d2b44d"
+      }      
+    }]
+  }) {
+    id
+  }  
 }
 ```
 
